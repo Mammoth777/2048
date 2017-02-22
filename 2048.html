@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>2048</title>
+        <link rel="stylesheet" type="text/css" href="2048.css">
+    </head>
+    <body>
+        <div id="main">
+        <table id="tableid">
+            <tr>
+                <td id="a1"></td>
+                <td id="a2"></td>
+                <td id="a3"></td>
+                <td id="a4"></td>
+            </tr>
+            <tr>
+                <td id="b1"></td>
+                <td id="b2"></td>
+                <td id="b3"></td>
+                <td id="b4"></td>
+            </tr>
+            <tr>
+                <td id="c1"></td>
+                <td id="c2"></td>
+                <td id="c3"></td>
+                <td id="c4"></td>
+            </tr>
+            <tr>
+                <td id="d1"></td>
+                <td id="d2"></td>
+                <td id="d3"></td>
+                <td id="d4"></td>
+            </tr>
+        </table>
+        </div>
+        <div class="menu">
+        <h4>score:</h4>
+        <h3 id="score">0</h3>
+        <button id="start" onclick="startgo()">start</button>  <!--靠，竟然可以函数+函数变成执行两次-->
+ <!--       <button id="test" onclick="test()">test</button>   -->
+        </div>
+    </body>
+
+<script src="2048.js">
+
+</script>
+</html>

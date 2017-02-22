@@ -1,0 +1,38 @@
+#main{
+    margin-left: 20%;
+    margin-top: 2%;
+    float: left;
+}
+table {
+    background-color:#c1c1c1;
+    border:1px solid black;
+    /*margin-left: 25%;*/
+
+    } 
+tr{
+   /* height:100px;*/
+   border: 1px;
+    }
+td{
+    border:1px solid gray;   
+    text-align: center;
+    font-size: 50px;
+    /*width:100px;*/
+    }  
+.menu{
+    float: left;
+    margin-top: 25%;
+    margin-left: 1%;  
+}
+#start{
+
+    margin-left: 30px;
+    width:70px;
+    height:40px;
+    font-size:20px;
+    }
+
+h3,h4{
+    padding-left: 30px;
+    
+}
