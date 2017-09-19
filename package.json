@@ -1,0 +1,14 @@
+{
+  "name": "2048",
+  "version": "1.0.0",
+  "description": "> https://mammoth777.github.io/2048/",
+  "main": "2048.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "77",
+  "license": "ISC",
+  "dependencies": {
+    "sweetalert": "^2.0.3"
+  }
+}

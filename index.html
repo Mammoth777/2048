@@ -1,31 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>demo</title>
+    <script src="./fitscreen.js"></script>
+    <script src="./node_modules/sweetalert/dist/sweetalert.min.js"></script>
     <style>
-        .con{
-            width: 600px;
-            height: 600px;
+        .con {
+            width: 6rem;
+            height: 6rem;
             margin: 0 auto;
             padding: 3px;
             background-color: #BBADA0;
             border-radius: 20px;
             overflow: hidden;
         }
-        .con span{
-            width: 150px;
-            height: 150px;
+        .con span {
+            width: 1.3rem;
+            height: 1.3rem;
+            margin: .1rem;
             background-color: #CDC1B4;
-            box-sizing: border-box;
-            border: 10px solid #BBADA0;
+            /* box-sizing: border-box; */
+            /* border: .1rem solid #BBADA0; */
             float: left;
-            font-size: 50px;
-            line-height: 130px;
+            font-size: .5rem;
+            line-height: 1.25rem;
             text-align: center;
+        }
+
+        @keyframes biger {
+            from{
+                opacity: 0;
+                transform: scale3d(.5, .5, .5);
+            }
+            to {
+                animation-timing-function: ease-out;
+                opacity: 1;
+                transform: scale3d(1, 1, 1);
+            }
+        }
+        .active {
+            animation-duration: .3s;
+            animation-name: biger;
+        }
+        .maximum{
+            box-sizing: content-box;
+            box-shadow: 0 0 30px 30px rgba(237, 207, 114,.3);
         }
     </style>
 </head>
+
 <body>
     <div class="con">
         <span></span>
@@ -47,4 +73,5 @@
     </div>
 </body>
 <script src="2048.js"></script>
+
 </html>

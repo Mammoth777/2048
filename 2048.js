@@ -9,6 +9,7 @@
 function Game(opt) {
     this.nums = new Array(16);
     this.colorList = opt.colorList;
+    this.changedBlock = [];
     this._init();
 }
 Game.prototype = {
@@ -20,6 +21,7 @@ Game.prototype = {
         this.hasMove = true;
         this.createNewBlock();
         this._bind();
+        this.render();
     },
     createNewBlock: function () {
         if (this.hasMove) {
@@ -35,8 +37,9 @@ Game.prototype = {
             // create random 2 or 4
             var r = zeroArr[Math.floor(Math.random() * zeroArr.length)]; //获取this.nums中value为零的index
             this.nums[r] = Math.random() < 0.1 ? 4 : 2;
-            console.log(r, this.nums);
-            this.render();
+            this.changedBlock.push(r);
+            // this.render();
+            this.gameover();
         }
     },
     // listen keyboard 
@@ -60,6 +63,7 @@ Game.prototype = {
         // 4. 倒序遍历,相同则相加.然后重新遍历至无相同
         // 5. 在空白处生成新数字
         var self = this;
+        var changed = false;
         function sort(arr) { //敲黑板,划重点🐶
             var newArr = [];
             //按一下合并一整条(2222=>8),奈何原效果非此,改用下面的
@@ -81,6 +85,7 @@ Game.prototype = {
                 for (var i = newArr.length; i > 0; i--) { // 合并相同,并归零其一
                     if (newArr[i] === newArr[i - 1]) {
                         newArr[i] *= 2;
+                        changed = true;
                         newArr[i - 1] = 0
                         i--;
                     }
@@ -120,9 +125,43 @@ Game.prototype = {
 
             }
         }
-        console.log(this.nums);
+        // console.log(this.nums);
         // console.log(this);
         this.createNewBlock();
+        this.render();
+    },
+    gameover: function () {
+        var flag = this.nums.every(v => v != 0); //每格都不是0 => flag则true
+        if (flag) {
+            var arr = this.nums;
+            for (var i = 0; i < 4; i++) {
+                for (var j = 0; j < 4; j++) {
+                    // 横向比较
+                    if (j < 3 && arr[i * 4 + j] === arr[i * 4 + j + 1]) {
+                        return true;
+                    }
+                    //纵向比较
+                    if (i < 3 && arr[i * 4 + j] === arr[(i + 1) * 4 + j]) {
+                        return true;
+                    }
+                }
+            }
+            // alert('U LOSE !');
+            var textArr = ['Win and lose in ice home is long thing , be happy !', "what a pity"];
+            swal({
+                title: "再来一句,赢了吃鸡",
+                text: textArr[Math.floor(Math.random() * textArr.length)]
+            })
+                .then((next) => {
+                    if (next) {
+                        game._init();
+                    } else {
+                        swal("其实应该点一下OK的");
+                        game._init();
+                    }
+                });
+            return false;
+        };
     },
     render: function () {
         function ln2(num) { //2的n次方
@@ -131,17 +170,32 @@ Game.prototype = {
                     return i;
                 };
             };
-            if(i == 15){
+            if (i == 15) {
                 throw "num is wrong ; should be 2^n ,n >= 1; num = " + num;
             }
-            
+
         }
         var ss = document.querySelectorAll('span');
         for (var i = 0; i < ss.length; i++) {
+            ss[i].className = ''; //去除样式
             ss[i].innerHTML = this.nums[i] == 0 ? '' : this.nums[i];
-            ss[i].style.backgroundColor = ss[i].innerHTML ? this.colorList[ln2(+ss[i].innerHTML) - 1 ] : ''; 
-            console.log(ss[i].innerHTML);
+            ss[i].style.backgroundColor = ss[i].innerHTML ? this.colorList[ln2(+ss[i].innerHTML) - 1] : '';
+            // console.log(ss[i].innerHTML);
         }
+        //添加样式
+        this.changedBlock.forEach(function (v) {
+            ss[v].className = 'active';
+        });
+        this.changedBlock = [];
+        this.max = {num : 0, index : -1};
+        console.log(this.max);
+        this.nums.forEach(function (v,i) {
+            if (v > this.max.num) {
+                this.max.num = v;
+                this.max.index = i;
+            }
+        },this)
+        this.max.num>=128?ss[this.max.index].className = "maximum":null;
     }
 }
 
@@ -157,10 +211,10 @@ var config = {
         "#EDCC61", //256
         "#EDC850", //512
         "#EDC53F", //1024
-        "red", //2048
-        "red", //4096
+        "pink", //2048
+        "darkred", //4096
         "red", //9192
     ]
 }
 var game = new Game(config);
-console.log(game.nums);
+// console.log(game.nums);
