@@ -188,7 +188,7 @@ Game.prototype = {
         });
         this.changedBlock = [];
         this.max = {num : 0, index : -1};
-        console.log(this.max);
+        // console.log(this.max);
         this.nums.forEach(function (v,i) {
             if (v > this.max.num) {
                 this.max.num = v;
