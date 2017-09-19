@@ -1,434 +1,166 @@
-//表格大小自适应
-onload=function(){
-    var screenx=screen.availWidth
-    var screeny=screen.availHeight
-    
-    if(screenx>screeny){
-        for(i=0;i<4;i++){
-            var temp=num[i];
-            for(j=0;j<4;j++){
-                document.getElementById(temp[j]).style.width=document.getElementById(temp[j]).style.height=screeny/6+"px";}
+/**
+ *       x0 x1 x2 x3
+ *      ------------   
+ *  y0 | 00 01 02 03 
+ *  y1 | 04 05 06 07 
+ *  y2 | 08 09 10 11
+ *  y3 | 12 13 14 15 
+ */
+function Game(opt) {
+    this.nums = new Array(16);
+    this.colorList = opt.colorList;
+    this._init();
+}
+Game.prototype = {
+    constructor: Game,
+    _init: function () {
+        this.nums.fill(0);
+        this.hasMove = true;
+        this.createNewBlock();
+        this.hasMove = true;
+        this.createNewBlock();
+        this._bind();
+    },
+    createNewBlock: function () {
+        if (this.hasMove) {
+            this.hasMove = false;
+            // 找到值为0的方块
+            var arr = this.nums,
+                zeroArr = [];
+            arr.forEach(function (v, i) {
+                if (v === 0) {
+                    zeroArr.push(i);
+                }
+            })
+            // create random 2 or 4
+            var r = zeroArr[Math.floor(Math.random() * zeroArr.length)]; //获取this.nums中value为零的index
+            this.nums[r] = Math.random() < 0.1 ? 4 : 2;
+            console.log(r, this.nums);
+            this.render();
+        }
+    },
+    // listen keyboard 
+    _bind: function () {
+        var that = this;
+        document.addEventListener('keydown', function (e) {
+            //console.log(e.keyCode);  //a65 d68 w87 s83  &&  ←37 →39 ↑38 ↓40
+            switch (e.keyCode) {
+                case 65 || 37: that.move('x', false); break; // left
+                case 68 || 39: that.move('x', true); break; // right
+                case 87 || 38: that.move('y', false); break; // up
+                case 83 || 40: that.move('y', true); break; // down
             }
-    }//电脑
-    else{
-        for(i=0;i<4;i++){
-            var temp=num[i];
-            for(j=0;j<4;j++){
-                document.getElementById(temp[j]).style.width=document.getElementById(temp[j]).style.height=screenx/2+"px";}
-        }    
-        document.getElementById("main").style.margin=0;    
-    }//手机
-}
-//alert ("hello world");
+        })
+    },
+    move: function (axis, direction) { // x true(右) x false(左) y true(下) y fasle(上)
+        // 按顺序判断该方向4个数字,(跳过0),相同则相加
+        // 1. 横/竖 循环4次,每次循环生成一个包含该条4个数字的数组 
+        // 2. direction 决定是否反转数组 --> 按下左,下需要在排序前后分别反转,合计2次
+        // 3. 去除数组内的 0 
+        // 4. 倒序遍历,相同则相加.然后重新遍历至无相同
+        // 5. 在空白处生成新数字
+        var self = this;
+        function sort(arr) { //敲黑板,划重点🐶
+            var newArr = [];
+            //按一下合并一整条(2222=>8),奈何原效果非此,改用下面的
+            /* (function s(arr) {
+                newArr = arr.filter(function (v) { return v != 0 }); //去除0   
+                for (var i = newArr.length; i > 0; i--) { // 合并相同,并归零其一
+                    if (newArr.length == 1) { break };
+                    if (newArr[i] == newArr[i - 1]) {
+                        newArr[i] *= 2;
+                        newArr[i - 1] = 0;
+                        s(newArr);
+                    }
+                }
+            })(arr); */
+            //按一下合并当前条可见的可合并数字,即 2222=>0044
+            (function (arr) {
+                newArr = arr.concat();
+                newArr = newArr.filter(v => v != 0); //去除0   ES6箭头函数
+                for (var i = newArr.length; i > 0; i--) { // 合并相同,并归零其一
+                    if (newArr[i] === newArr[i - 1]) {
+                        newArr[i] *= 2;
+                        newArr[i - 1] = 0
+                        i--;
+                    }
+                }
+                newArr = newArr.filter(v => v != 0); //去除0   ES6箭头函数
+            })(arr);
 
-//<方块不能移动，却产生随机数>已修复
-//<底层2248,22不合并>已修复
-var num=new Array(3);
-var zb=new Array;  //zb,坐标
-var a=new Array(3);
-var b=new Array(3);
-var c=new Array(3);
-var d=new Array(3);
-var canmove=0; //可以移动
-var realstart;//是否开始
-var realwin;//是否2048
-var cells = new Array
-var a1=a2=a3=a4=b1=b2=b3=b4=c1=c2=c3=c4=d1=d2=d3=d4="";
-cells=[a1,a2,a3,a4,b1,b2,b3,b4,c1,c2,c3,c4,d1,d2,d3,d4];
-a=["a1","a2","a3","a4"]
-b=["b1","b2","b3","b4"]
-c=["c1","c2","c3","c4"]
-d=["d1","d2","d3","d4"]
-num=[a,b,c,d];
-
-//重点笔记：element.addEventListener('',要么匿名函数function(){...}要么调用不带括号的函数，false表示冒泡)
-document.body.addEventListener('keydown',movecell,false);//keydown功能
-document.body.addEventListener('touchstart',touchstartfunc,false);//touch功能
-document.body.addEventListener('touchmove',touchmovefunc,false);
-document.body.addEventListener('touchend',function(){touchact=0;},false);
-//touch 
-//function touchall(){     // 疑问：能否把两个函数放在一个函数里并正常调用。
-    var startx,starty,endx,endy,direction,touchact;
-    function touchstartfunc(event){
-        //alert("keydown success");
-        event.preventDefault();
-        touchact=1;
-        startx=event.targetTouches[0].pageX;
-        starty=event.targetTouches[0].pageY;
-        //alert(startx + " and " + starty);
-    }
-    function touchmovefunc(event){      
-        endx=event.changedTouches[0].pageX;
-        endy=event.changedTouches[0].pageY;
-        console.log("touchmove:" + endx + " and " + endy);
-        touchSlide();
-    }       
-    function touchSlide(){
-        var dx,dy;
-        dx=endx-startx;
-        dy=endy-starty;
-        if(dx>15){direction=0}//right
-        else if(dx<15){direction=1};//left
-        if(dy>15){direction=2}//down
-        else if(dy<-15){direction=3};//up
-        //alert("direction="+ direction);
-        if(touchact===1){
-        movecell('touch');}
-        touchact=0;
-    }
-//}
-//test
-function test(){ 
-    //debugger;
-    cells[12]=2;
-    cells[13]=2;
-    cells[14]=4;
-    cells[15]=4;
-    document.getElementById("d1").innerHTML=(2);
-    document.getElementById("d2").innerHTML=(2);
-    document.getElementById("d3").innerHTML=(4);
-    document.getElementById("d4").innerHTML=(4);
-}
-
-function startgo(){
-    //debugger;
-    if(realstart!=1){
-    canmove=1;
-    sjzb();
-    canmove=1;
-    sjzb();
-    realstart=1
-    }
-    else{
-        clearall();
-        canmove=1;
-        sjzb();
-        canmove=1;
-        sjzb();
-        realstart=1
-    }
-}
-function sjzb(){  //产生随机数坐标,如果坐标对应cells数组数字为0，则随机填入2 or 4
-    //alert("have go");
-    //debugger;
-
-    if(canmove==0){return;}
-    else{
-        var temp=new Array
-        for(var t=0;t<16;t++){
-        var x=Math.floor(Math.random()*4);
-        var y=Math.floor(Math.random()*4);  
-            if(cells[x*4+y]==0){
-                    temp=num[x];
-                    document.getElementById(temp[y]).innerHTML=cells[x*4+y]=tof();
-                    document.getElementById("score").innerHTML=score();
-                    canmove=0;
-                    paintColor();
-                    return
+            [].unshift.apply(newArr, new Array(4 - newArr.length).fill(0));  //并把0加到开头,补足4位
+            if (arr.toString() != newArr.toString()) { //数组相等判定.如果不相等,说明有变动过了
+                self.hasMove = true;
             }
+            //this.arr = newArr.concat(); //深copy给this.arr ..[是否需要深复制呢?待定]
+            return newArr;
         }
-
-    }
-}
-function tof(){  //two or four
-    var s=Math.random()
-    if (s>0.1){
-        return 2;
-    }
-    else return 4;
-}
-function score(){  //计算得分
-    var s=Math.max.apply(null,cells);
-    if(realwin="" && s===2048){
-        alert("You Win!!!");
-        realwin=1;
-        }
-    return s;//apply啥意思？法克
-}
-function panshu(){ //判输
-    for(var n=0 ;n<16;n++){
-        if(cells[n]==0){return;}
-    }
-    for(var i=0;i<4;i++){
-        for(var j=0;j<3;j++){
-            if(cells[i*4+j]==cells[i*4+j+1] || cells[i*4+j]==cells[(i+1)*4+j])
-                return;
-        }
-    }
-    for(i=0;i<3;i++){
-        if(cells[i*4+3]==cells[(i+1)*4+3]){
-            return;
-        }
-    }
-    return -1;
-}
-function cellTonum(){  //cells数组对应num二维数组，数字写入表格
-    var temp=new Array;
-    for (var i=0;i<num.length;i++){
-        temp=num[i];
-        for(var j=0;j<a.length;j++){
-            document.getElementById(temp[j]).innerHTML=cells[i*4+j];
-        }
-    }
-}
-function movecell(event){ //wasd动作
-    //debugger;
-    //alert(event.charCode);
-    //alert(event.keyCode);
-    //new touch event
-
-    if(realstart!=1){
-        return;
-    }
-    if(event!='touch'){
-        switch(event.keyCode){
-            case 65:movea();break;
-            case 37:movea();break;
-            case 68:moved();break;
-            case 39:moved();break;
-            case 87:movew();break;
-            case 38:movew();break;
-            case 83:moves();break;
-            case 40:moves();break;
-            }   
-    }
-    else{
-        switch(direction){
-            case 1:movea();break;
-            case 0:moved();break;
-            case 3:movew();break;
-            case 2:moves();break;
-        }
-    }
-    
-    paintColor();
-    sjzb();
-    if(panshu()==-1){
-    alert("you lose!!!");
-}
-
-}
-function movea(){  //左移，a
-    //debugger;
-    canmove=0;
-    for(var n=0;n<3;n++){ //左移三次
-        for(var i=0;i<4;i++){
-            for(var j=0;j<3;j++){
-                if(cells[i*4+j]==0 && cells[i*4+j+1]!=0){
-                    cells[i*4+j]=cells[i*4+j+1];
-                    cells[i*4+j+1]="";
-                    canmove=1;
+        var a = this.nums; // a[x * 4 + y] -- 第 x 行 ,第 y 列 
+        for (var i = 0; i < 4; i++) {
+            var line = [];
+            for (var j = 0; j < 4; j++) {
+                if (axis == 'x') { //横向
+                    line.push(a[i * 4 + j]);
+                } else if (axis == 'y') { //纵向
+                    line.push(a[j * 4 + i]);
                 }
             }
-        }
-    }
-    //归左
-    //for(var n=0;n<3;n++){
-        //debugger;
-        for(var i=0;i<4;i++){
-            if(cells[i*4+0]==cells[i*4+1] && cells[i*4+0]!=0){
-                cells[i*4+0]=cells[i*4+0]*2;
-                cells[i*4+1]="";
-                canmove=1;
+            if (!direction) {
+                line.reverse();
+                var sl = sort(line).reverse();
+            } else {
+                sl = sort(line); // sorted line
+            }
+            for (var j = 0; j < 4; j++) {
+                if (axis == 'x') { //横向
+                    a[i * 4 + j] = sl[j];
+                } else if (axis == 'y') { //纵向
+                    a[j * 4 + i] = sl[j];
+                }
 
             }
-            else if(cells[i*4+1]==cells[i*4+2] && cells[i*4+1]!=0){
-                cells[i*4+1]=cells[i*4+1]*2;
-                cells[i*4+2]="";      
-                canmove=1;         
-            }
-            if(cells[i*4+2]==cells[i*4+3] && cells[i*4+2]!=0){
-                cells[i*4+2]=cells[i*4+2]*2;
-                cells[i*4+3]="";    
-                canmove=1;       
-            }
-            
         }
-    //}    
-    //合并
-        for(var n=0;n<3;n++){ //左移三次
-        for(var i=0;i<4;i++){
-            for(var j=0;j<3;j++){
-                if(cells[i*4+j]==0 && cells[i*4+j+1]!=0){
-                    cells[i*4+j]=cells[i*4+j+1];
-                    cells[i*4+j+1]="";
-                    canmove=1;  //为1则方块们可以移动
-                }
-            }
-        }
-    }
-    //再归左一次
-cellTonum();//把数组里的数写入表格
-}
-function moved(){  //右移，d
-    //debugger;
-    canmove=0;
-    for(var n=0;n<3;n++){ //右移三次,n-次数
-        for(var i=0;i<4;i++){
-            for(var j=3;j>0;j--){
-                if(cells[i*4+j]==0 && cells[i*4+j-1]!=0){
-                    cells[i*4+j]=cells[i*4+j-1];
-                    cells[i*4+j-1]="";
-                    canmove=1;
+        console.log(this.nums);
+        // console.log(this);
+        this.createNewBlock();
+    },
+    render: function () {
+        function ln2(num) { //2的n次方
+            for (var i = 1; i < 15; i++) {
+                if (Math.pow(2, i) === num * 1) {
+                    return i;
                 };
             };
-        };
-    };
-    //归右
-    //debugger;
-        for(var i=0;i<4;i++){ //每行合并
-            if(cells[i*4+3]==cells[i*4+2] && cells[i*4+3]!=0){
-                cells[i*4+3]=cells[i*4+3]*2;
-                cells[i*4+2]="";
-                canmove=1;
-            }
-            else if(cells[i*4+2]==cells[i*4+1] && cells[i*4+2]!=0){
-                cells[i*4+2]=cells[i*4+2]*2;
-                cells[i*4+1]="";     
-                canmove=1;          
-            }
-            if(cells[i*4+1]==cells[i*4+0] && cells[i*4+1]!=0){
-                cells[i*4+1]=cells[i*4+1]*2;
-                cells[i*4+0]="";           
-                canmove=1;
+            if(i == 15){
+                throw "num is wrong ; should be 2^n ,n >= 1; num = " + num;
             }
             
-        }  
-    for(var n=0;n<3;n++){ //右移三次,n-次数
-        for(var i=0;i<4;i++){
-            for(var j=3;j>0;j--){
-                if(cells[i*4+j]==0 && cells[i*4+j-1]!=0){
-                    cells[i*4+j]=cells[i*4+j-1];
-                    cells[i*4+j-1]="";
-                    canmove=1;
-                }
-            }
+        }
+        var ss = document.querySelectorAll('span');
+        for (var i = 0; i < ss.length; i++) {
+            ss[i].innerHTML = this.nums[i] == 0 ? '' : this.nums[i];
+            ss[i].style.backgroundColor = ss[i].innerHTML ? this.colorList[ln2(+ss[i].innerHTML) - 1 ] : ''; 
+            console.log(ss[i].innerHTML);
         }
     }
-    //再归右一次
-cellTonum();//把数组里的数写入表格
-}
-function movew(){//上移，w
-    //debugger;
-    canmove=0;
-    for (var n=0;n<3;n++){//归上
-        for(var j=0;j<4;j++){
-            for (var i=0;i<3;i++){
-                if(cells[i*4+j]==0 && cells[(i+1)*4+j]!=0){
-                    cells[i*4+j]=cells[(i+1)*4+j];
-                    cells[(i+1)*4+j]="";
-                    canmove=1
-                }
-            }
-        }
-    }
-    for (j=0;j<4;j++){ //每列合并
-        if(cells[0*4+j]==cells[1*4+j] && cells[0*4+j]!=0){
-            cells[0*4+j]=cells[0*4+j]*2;
-            cells[1*4+j]="";
-            canmove=1;
-        }
-        else if(cells[1*4+j]==cells[2*4+j] && cells[1*4+j]!=0){
-            cells[1*4+j]=cells[1*4+j]*2;
-            cells[2*4+j]="";
-            canmove=1;
-        }
-        if(cells[2*4+j]==cells[3*4+j] && cells[2*4+j]!=0){
-            cells[2*4+j]=cells[2*4+j]*2;
-            cells[3*4+j]="";
-            canmove=1;
-        }
-    }
-    for (var n=0;n<3;n++){//再归上一次
-        for(var j=0;j<4;j++){
-            for (var i=0;i<3;i++){
-                if(cells[i*4+j]==0 && cells[(i+1)*4+j]!=0){
-                    cells[i*4+j]=cells[(i+1)*4+j];
-                    cells[(i+1)*4+j]="";
-                    canmove=1;
-                }
-            }
-        }
-    }
-    cellTonum();//把数组里的数写入表格
-}
-function moves(){
-    canmove=0;
-    for (var n=0;n<3;n++){//归下,3 times
-        for(var j=0;j<4;j++){
-            for (var i=3;i>0;i--){
-                if(cells[i*4+j]==0 && cells[(i-1)*4+j]!=0){
-                    cells[i*4+j]=cells[(i-1)*4+j];
-                    cells[(i-1)*4+j]="";
-                    canmove=1;
-                }
-            }
-        }
-    }
-    for (j=0;j<4;j++){ //每列合并
-        if(cells[3*4+j]==cells[2*4+j] && cells[3*4+j]!=0){
-            cells[3*4+j]=cells[3*4+j]*2;
-            cells[2*4+j]="";
-            canmove=1;
-        }
-        else if(cells[2*4+j]==cells[1*4+j] && cells[2*4+j]!=0){
-            cells[2*4+j]=cells[2*4+j]*2;
-            cells[1*4+j]="";
-            canmove=1;
-        }
-        if(cells[1*4+j]==cells[0*4+j] && cells[1*4+j]!=0){
-            cells[1*4+j]=cells[1*4+j]*2;
-            cells[0*4+j]="";
-            canmove=1;
-        }
-    }
-    for (var n=0;n<3;n++){//归下,3 times
-        for(var j=0;j<4;j++){
-            for (var i=3;i>0;i--){
-                if(cells[i*4+j]==0 && cells[(i-1)*4+j]!=0){
-                    cells[i*4+j]=cells[(i-1)*4+j];
-                    cells[(i-1)*4+j]="";
-                    canmove=1;
-                }
-            }
-        }
-    }
-
-    cellTonum();//把数组里的数写入表格    
 }
 
-function paintColor(){
-    //debugger;
-    var colors;
-    var temp=new Array;
-    for (var i=0;i<num.length;i++){
-        temp=num[i];
-        for (var j=0;j<a.length;j++){
-            switch(cells[i*4+j]){
-                case "":colors="#c1c1c1";break;
-                case 0:colors="#c1c1c1";break;
-                case 2:colors="#ffc080";break;
-                case 4:colors="#ffa060";break;
-                case 8:colors="#ff8040";break;
-                case 16:colors="#ff6020";break;
-                case 32:colors="#ff4000";break;
-                case 64:colors="#ff8080";break;
-                case 128:colors="#ffc000";break;
-                case 256:colors="#ffff00";break;
-                case 512:colors="#c080ff";break;
-                case 1024:colors="#c0ff40";break;
-                case 2048:colors="#60ff60";break;
-                case 4096:colors="#c060ff";break;
-            }
-            document.getElementById(temp[j]).style.backgroundColor=colors;
-            colors=""
-        }
-    }
-
+var config = {
+    colorList: [
+        "#EDE0C8",
+        "#EDE0C8", //4
+        "#F2B179",
+        "#F59563", //16
+        "#F67C5F",
+        "#F65E3B",  //64
+        "#EDCF72", //128
+        "#EDCC61", //256
+        "#EDC850", //512
+        "#EDC53F", //1024
+        "red", //2048
+        "red", //4096
+        "red", //9192
+    ]
 }
-function clearall(){
-     for(var n=0;n<cells.length;n++){
-        cells[n]=""
-    }
-    cellTonum();
-}
+var game = new Game(config);
+console.log(game.nums);
