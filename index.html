@@ -16,7 +16,10 @@
             background-color: #BBADA0;
             border-radius: 20px;
             overflow: hidden;
+            user-select: none;
+            cursor: default;
         }
+
         .con span {
             width: 1.3rem;
             height: 1.3rem;
@@ -30,8 +33,38 @@
             text-align: center;
         }
 
+        .con span.gt8 {
+            color: #d5d5d5;
+        }
+
+        .score {
+            position: fixed;
+            left: 50%;
+            margin-left: 3.7rem;
+            bottom: .527rem;
+            padding: .27rem;
+            font-size: .27rem;
+            user-select: none;
+            cursor: default;
+            background-color: #BBADA0;
+            color: #eee;
+            border-radius: .1rem;
+            transition: .5s;
+        }
+        .score:hover{
+            transform: scale(1.02);
+            box-shadow: 0px 0px 7px #BBADA0;
+            color: #eee;
+        }
+
+        .score strong {
+            display: block;
+            font-size: .527rem;
+            text-shadow: 1px 1px 10px #EDC53F;
+        }
+
         @keyframes biger {
-            from{
+            from {
                 opacity: 0;
                 transform: scale3d(.5, .5, .5);
             }
@@ -41,13 +74,49 @@
                 transform: scale3d(1, 1, 1);
             }
         }
+
         .active {
             animation-duration: .3s;
             animation-name: biger;
         }
-        .maximum{
+
+        .maximum {
             box-sizing: content-box;
-            box-shadow: 0 0 30px 30px rgba(237, 207, 114,.3);
+            box-shadow: 0 0 30px 30px rgba(237, 207, 114, .3);
+        }
+
+        @keyframes bounce {
+            from,
+            20%,
+            53%,
+            80%,
+            to {
+                animation-timing-function: cubic-bezier(0.215, 0.610, 0.355, 1.000);
+                transform: translate3d(0, 0, 0);
+            }
+
+            40%,
+            43% {
+                animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+                transform: translate3d(0, -30px, 0);
+                opacity: .33;
+            }
+
+            70% {
+                animation-timing-function: cubic-bezier(0.755, 0.050, 0.855, 0.060);
+                transform: translate3d(0, -15px, 0);
+                opacity: .77;
+            }
+
+            90% {
+                transform: translate3d(0, -4px, 0);
+            }
+        }
+
+        .bounce {
+            animation-duration: .25s;
+            animation-name: bounce;
+            transform-origin: center bottom;
         }
     </style>
 </head>
@@ -70,6 +139,10 @@
         <span></span>
         <span></span>
         <span></span>
+    </div>
+    <div class="score" draggable="draggable">
+        <strong>0</strong>
+        <span>score</span>
     </div>
 </body>
 <script src="2048.js"></script>

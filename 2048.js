@@ -9,13 +9,14 @@
 function Game(opt) {
     this.nums = new Array(16);
     this.colorList = opt.colorList;
-    this.changedBlock = [];
     this._init();
 }
 Game.prototype = {
     constructor: Game,
     _init: function () {
         this.nums.fill(0);
+        this.max = { num: 0, index: -1 };
+        this.changedBlock = [];
         this.hasMove = true;
         this.createNewBlock();
         this.hasMove = true;
@@ -48,10 +49,14 @@ Game.prototype = {
         document.addEventListener('keydown', function (e) {
             //console.log(e.keyCode);  //a65 d68 w87 s83  &&  ←37 →39 ↑38 ↓40
             switch (e.keyCode) {
-                case 65 || 37: that.move('x', false); break; // left
-                case 68 || 39: that.move('x', true); break; // right
-                case 87 || 38: that.move('y', false); break; // up
-                case 83 || 40: that.move('y', true); break; // down
+                case 65: that.move('x', false); break; // left
+                case 37: that.move('x', false); break; // left
+                case 68: that.move('x', true); break; // right
+                case 39: that.move('x', true); break; // right
+                case 87: that.move('y', false); break; // up
+                case 38: that.move('y', false); break; // up
+                case 83: that.move('y', true); break; // down
+                case 40: that.move('y', true); break; // down
             }
         })
     },
@@ -146,6 +151,7 @@ Game.prototype = {
                     }
                 }
             }
+
             // alert('U LOSE !');
             var textArr = ['Win and lose in ice home is long thing , be happy !', "what a pity"];
             swal({
@@ -175,7 +181,7 @@ Game.prototype = {
             }
 
         }
-        var ss = document.querySelectorAll('span');
+        var ss = document.querySelectorAll('.con span');
         for (var i = 0; i < ss.length; i++) {
             ss[i].className = ''; //去除样式
             ss[i].innerHTML = this.nums[i] == 0 ? '' : this.nums[i];
@@ -187,15 +193,29 @@ Game.prototype = {
             ss[v].className = 'active';
         });
         this.changedBlock = [];
-        this.max = {num : 0, index : -1};
         // console.log(this.max);
-        this.nums.forEach(function (v,i) {
+        var scoreBoard = document.querySelector('.score strong');
+        
+        this.nums.forEach(function (v, i) {
+            if (v >= 8) {
+                ss[i].classList.add("gt8");
+            }
+            else{
+                ss[i].classList.remove("gt8");
+            }
             if (v > this.max.num) {
                 this.max.num = v;
                 this.max.index = i;
+                console.log("this.max"+this.max.num);
+                console.log("new:"+v);
+                scoreBoard.innerHTML = v;
+                scoreBoard.classList.add("bounce");
+                setTimeout(function() {
+                    scoreBoard.classList.remove('bounce');
+                }, 300);
             }
-        },this)
-        this.max.num>=128?ss[this.max.index].className = "maximum":null;
+        }, this)
+        this.max.num >= 128 ? ss[this.max.index].className = "maximum" : null;
     }
 }
 
