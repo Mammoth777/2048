@@ -197,12 +197,6 @@ Game.prototype = {
         var scoreBoard = document.querySelector('.score strong');
         
         this.nums.forEach(function (v, i) {
-            if (v >= 8) {
-                ss[i].classList.add("gt8");
-            }
-            else{
-                ss[i].classList.remove("gt8");
-            }
             if (v > this.max.num) {
                 this.max.num = v;
                 this.max.index = i;
