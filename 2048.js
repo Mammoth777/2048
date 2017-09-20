@@ -15,7 +15,6 @@ Game.prototype = {
     constructor: Game,
     _init: function () {
         this.nums.fill(0);
-        this.max = { num: 0, index: -1 };
         this.changedBlock = [];
         this.hasMove = true;
         this.createNewBlock();
@@ -196,12 +195,15 @@ Game.prototype = {
         // console.log(this.max);
         var scoreBoard = document.querySelector('.score strong');
         
+        this.max = { num: 0, index: -1 };
         this.nums.forEach(function (v, i) {
             if (v > this.max.num) {
                 this.max.num = v;
                 this.max.index = i;
                 console.log("this.max"+this.max.num);
-                console.log("new:"+v);
+                console.log("new v:"+v);
+                console.log("new i:"+v);
+
                 scoreBoard.innerHTML = v;
                 scoreBoard.classList.add("bounce");
                 setTimeout(function() {
