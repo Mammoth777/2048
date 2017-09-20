@@ -10,6 +10,7 @@ function Game(opt) {
     this.nums = new Array(16);
     this.colorList = opt.colorList;
     this._init();
+    this._bind();
 }
 Game.prototype = {
     constructor: Game,
@@ -20,7 +21,6 @@ Game.prototype = {
         this.createNewBlock();
         this.hasMove = true;
         this.createNewBlock();
-        this._bind();
         this.render();
     },
     createNewBlock: function () {
