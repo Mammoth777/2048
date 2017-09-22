@@ -8,6 +8,7 @@
     <title>demo</title>
     <script src="./js/fitscreen.js"></script>
     <script src="./js/sweetalert.min.js"></script>
+    <script src="./js/zepto.js"></script>
     <style>
         .con {
             width: 6rem;
@@ -26,19 +27,16 @@
             height: 1.3rem;
             margin: .1rem;
             background-color: #CDC1B4;
-            /* box-sizing: border-box; */
-            /* border: .1rem solid #BBADA0; */
             float: left;
             font-size: .5rem;
             line-height: 1.25rem;
             text-align: center;
         }
-
         .score {
             position: fixed;
             left: 50%;
-            margin-left: 3.7rem;
             bottom: .527rem;
+            margin-left: 3.7rem;
             padding: .27rem;
             font-size: .27rem;
             user-select: none;
@@ -47,6 +45,13 @@
             color: #eee;
             border-radius: .1rem;
             transition: .5s;
+        }
+        @media screen and (max-width:980px) {
+            .score{
+                position: static;
+                margin: 10px;
+                text-align: center;
+            }
         }
         .score:hover{
             transform: scale(1.02);

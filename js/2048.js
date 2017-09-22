@@ -11,6 +11,7 @@ function Game(opt) {
     this.colorList = opt.colorList;
     this._init();
     this._bind();
+    this.swipe();
 }
 Game.prototype = {
     constructor: Game,
@@ -214,6 +215,22 @@ Game.prototype = {
         this.max.num >= 128 ? ss[this.max.index].className = "maximum" : null;
     }
 }
+Game.prototype.swipe = function(){
+    var that = this;
+    $(document).swipeLeft(function(){
+        that.move('x',false);
+    })
+    $(document).swipeRight(function(){
+        that.move('x',true);
+    })
+    $(document).swipeUp(function(){
+        that.move('y',false);
+    })
+    $(document).swipeDown(function(){
+        that.move('y',true);
+    })
+}
+
 
 var config = {
     colorList: [
