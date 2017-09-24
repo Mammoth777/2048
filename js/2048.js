@@ -226,7 +226,9 @@ Game.prototype.swipe = function(){
     $(document).swipeUp(function(){
         that.move('y',false);
     })
-    $(document).swipeDown(function(){
+    $(document).swipeDown(function(e){
+        // console.log(e);
+        e.preventDefault();
         that.move('y',true);
     })
 }
