@@ -228,7 +228,7 @@ Game.prototype.swipe = function(){
     })
     $(document).swipeDown(function(e){
         // console.log(e);
-        e.preventDefault();
+        // e.preventDefault();
         that.move('y',true);
     })
 }
@@ -253,3 +253,7 @@ var config = {
 }
 var game = new Game(config);
 // console.log(game.nums);
+
+function logInPage(t){
+    document.getElementById('log').innerText = t;
+}
